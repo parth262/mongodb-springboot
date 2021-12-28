@@ -3,7 +3,7 @@ package com.example.mongospringboottest.controller;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import com.example.mongospringboottest.domain.query.Query;
+import com.example.mongospringboottest.domain.query.QueryRequest;
 import com.example.mongospringboottest.service.DataService;
 
 import org.bson.Document;
@@ -29,7 +29,7 @@ public class DataController {
     @GetMapping("/query")
     public List<Document> queryData (
         @RequestParam String table,
-        @RequestParam Integer skip,
+        @RequestParam Long skip,
         @RequestParam Integer limit
     ) {
         return dataService.query(table, skip, limit);
@@ -38,7 +38,7 @@ public class DataController {
     @PostMapping("/query")
     public List<Document> queryData (
         @RequestParam String table,
-        @RequestBody Query query
+        @RequestBody QueryRequest query
     ) {
         return dataService.query(table, query);
     }
