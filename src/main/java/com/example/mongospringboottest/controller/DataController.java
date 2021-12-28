@@ -7,7 +7,6 @@ import com.example.mongospringboottest.service.DataService;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RestController
 @RequestMapping("/api")
 public class DataController {
-    
-    @Value("${download.records.maxPerRequest}")
-    private Integer MAX_RECORDS_PER_REQUEST;
 
     @Autowired
     private DataService dataService;
@@ -33,7 +29,7 @@ public class DataController {
         @RequestParam Integer skip,
         @RequestParam Integer limit
     ) {
-        return dataService.findAllDocuments(table, skip, Math.min(limit, MAX_RECORDS_PER_REQUEST));
+        return dataService.findAllDocuments(table, skip, limit);
     }
 
     @GetMapping("/download")

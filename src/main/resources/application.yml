@@ -1,0 +1,19 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://mongouser:Sheba1997@cluster0.qd47m.mongodb.net/
+      database: sample_airbnb
+
+server:
+  port: 9090
+
+app:
+  cipher:
+    algorithm: AES/CBC/PKCS5Padding
+    key: c2FtcGxla2V5
+    iv-length: 10
+  keyVault:
+    uri: https://springtest.vault.azure.net/
+  download:
+    records:
+      default-per-request: 5000

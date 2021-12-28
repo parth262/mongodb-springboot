@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Service
 public class DataService {
 
-    @Value("${download.records.defaultPerRequest}")
+    @Value("${app.download.records.default-per-request}")
     private Integer DEFAULT_PAGE_SIZE;
 
     @Autowired
