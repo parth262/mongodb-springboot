@@ -3,6 +3,7 @@ package com.example.mongospringboottest.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.mongospringboottest.domain.query.Query;
 import com.example.mongospringboottest.repository.DataRepository;
 
 import org.bson.Document;
@@ -20,13 +21,13 @@ public class DataService {
     @Autowired
     private DataRepository dataRepository;
 
-    public List<Document> findAllDocuments(String table, Integer skip, Integer limit) {
-        Long startTime = System.currentTimeMillis();
-        List<Document> result = dataRepository.getAllDocuments(table, skip, limit);
-        Long endTime = System.currentTimeMillis();
-        System.out.println("Total Time Taken in milliseconds: " + (endTime - startTime));
-        System.out.println("Total records fetched: " + result.size());
+    public List<Document> query(String table, Integer skip, Integer limit) {
+        List<Document> result = dataRepository.query(table, skip, limit);
         return result;
+    }
+
+    public List<Document> query(String table, Query query) {
+        return dataRepository.query(table, query);
     }
 
     private String getCSVOfDocuments(Document document) {
@@ -45,7 +46,7 @@ public class DataService {
             while(remainingRecords > 0) {
                 Integer skip = page * DEFAULT_PAGE_SIZE;
                 Integer limit = Math.min(remainingRecords.intValue(), DEFAULT_PAGE_SIZE);                
-                List<Document> documents = dataRepository.getAllDocuments(table, skip, limit);
+                List<Document> documents = dataRepository.query(table, skip, limit);
                 if(page == 0) {
                     String header = getHeaderFromDocument(documents.get(0));
                     response.write((header + "\n").getBytes());

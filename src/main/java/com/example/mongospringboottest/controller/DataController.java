@@ -3,6 +3,7 @@ package com.example.mongospringboottest.controller;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import com.example.mongospringboottest.domain.query.Query;
 import com.example.mongospringboottest.service.DataService;
 
 import org.bson.Document;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,13 +26,21 @@ public class DataController {
     @Autowired
     private DataService dataService;
     
-    @GetMapping("/data")
-    public List<Document> getAllDocuments(
+    @GetMapping("/query")
+    public List<Document> queryData (
         @RequestParam String table,
         @RequestParam Integer skip,
         @RequestParam Integer limit
     ) {
-        return dataService.findAllDocuments(table, skip, limit);
+        return dataService.query(table, skip, limit);
+    }
+    
+    @PostMapping("/query")
+    public List<Document> queryData (
+        @RequestParam String table,
+        @RequestBody Query query
+    ) {
+        return dataService.query(table, query);
     }
 
     @GetMapping("/download")
