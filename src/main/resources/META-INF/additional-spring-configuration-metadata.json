@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "download.records.maxPerRequest",
+    "type": "java.lang.String",
+    "description": "Maximum number of records allowed per request'"
+  },
+  {
+    "name": "download.records.defaultPerRequest",
+    "type": "java.lang.String",
+    "description": "Default number of records fetched per request"
+  }
+]}

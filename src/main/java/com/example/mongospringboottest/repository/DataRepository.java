@@ -24,4 +24,8 @@ public class DataRepository {
                 return document;
             }).into(new ArrayList<>());
     }
+
+    public Long getTotalCount(String table) {
+        return mongoTemplate.getCollection(table).countDocuments();
+    }
 }
