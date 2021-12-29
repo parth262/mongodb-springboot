@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.domain.query;
+package com.example.mongospringboottest.domain.request.query;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +13,7 @@ public class QueryRequest {
     public Paging paging;
     @JsonProperty(value = "$sorting")
     public List<Sort> sorting = Collections.emptyList();
+    @JsonProperty(value = "$count")
     public Boolean count = false;
 
     public QueryRequest() {

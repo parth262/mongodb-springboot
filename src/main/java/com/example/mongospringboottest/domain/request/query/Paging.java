@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.domain.query;
+package com.example.mongospringboottest.domain.request.query;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
