@@ -1,5 +1,9 @@
 package com.example.mongospringboottest.controller;
 
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import com.example.mongospringboottest.domain.request.query.QueryRequest;
 import com.example.mongospringboottest.domain.response.ErrorResponse;
 import com.example.mongospringboottest.domain.response.MongoDataResponse;
@@ -7,14 +11,18 @@ import com.example.mongospringboottest.service.DataService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -27,7 +35,7 @@ public class DataController {
     
     @GetMapping("/query")
     public ResponseEntity<MongoDataResponse> queryData (
-        @RequestParam String entity,
+        @RequestParam(required = true) String entity,
         @RequestParam Long skip,
         @RequestParam Integer limit
     ) {
@@ -37,7 +45,7 @@ public class DataController {
     
     @PostMapping("/query")
     public ResponseEntity<MongoDataResponse> queryData (
-        @RequestBody QueryRequest queryRequest
+        @Valid @RequestBody QueryRequest queryRequest
     ) {
         MongoDataResponse response = dataService.query(queryRequest);
         return ResponseEntity.ok().body(response);
@@ -54,9 +62,16 @@ public class DataController {
             .body(stream);
     }
 
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorResponse> handleBaseException(Exception exception) {
-        return ResponseEntity.badRequest().body(new ErrorResponse(exception.getMessage()));
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ErrorResponse handleBaseException(MethodArgumentNotValidException exception) {
+        String errorMessage = exception.getBindingResult().getAllErrors()
+            .stream()
+            .map(error -> {
+                String fieldName = ((FieldError) error).getField();
+                return String.format("%s: %s", fieldName, error.getDefaultMessage());
+            }).collect(Collectors.joining(",\n"));
+        return new ErrorResponse(errorMessage);
     }
 
 }
