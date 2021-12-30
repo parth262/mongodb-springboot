@@ -4,6 +4,6 @@ import com.example.mongospringboottest.domain.request.query.QueryRequest;
 
 public interface QueryBuilder<T> {
     
-    public T buildQuery(QueryRequest queryRequest);
+    public T build(QueryRequest queryRequest);
 
 }

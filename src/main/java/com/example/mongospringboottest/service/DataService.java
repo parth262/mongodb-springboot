@@ -6,11 +6,14 @@ import java.util.stream.Collectors;
 import com.example.mongospringboottest.domain.request.query.QueryRequest;
 import com.example.mongospringboottest.domain.response.MongoDataResponse;
 import com.example.mongospringboottest.repository.DataRepository;
+import com.example.mongospringboottest.util.EntityDetailsProvider;
+import com.example.mongospringboottest.util.MongoAggregationBuilder;
 import com.example.mongospringboottest.util.MongoQueryBuilder;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -27,25 +30,33 @@ public class DataService {
     @Autowired
     private MongoQueryBuilder mongoQueryBuilder;
 
-    public MongoDataResponse query(String table, Long skip, Integer limit) {
-        Query query = mongoQueryBuilder.buildQuery(skip, limit);
+    @Autowired
+    private MongoAggregationBuilder mongoAggregationBuilder;
+
+    @Autowired
+    private EntityDetailsProvider entityDetailsProvider;
+
+    public MongoDataResponse query(String entity, Long skip, Integer limit) {
+        String table = entityDetailsProvider.getTable(entity);
+        Query query = mongoQueryBuilder.build(skip, limit);
         List<Document> results = dataRepository.query(table, query);
         return new MongoDataResponse(results);
     }
 
-    public MongoDataResponse query(String table, QueryRequest queryRequest) {
-        Query query = mongoQueryBuilder.buildQuery(queryRequest);
-        List<Document> results = dataRepository.query(table, query);
+    public MongoDataResponse query(QueryRequest queryRequest) {
+        String table = entityDetailsProvider.getTable(queryRequest.entity);
+        Aggregation aggregation = mongoAggregationBuilder.build(queryRequest);
+        List<Document> results = dataRepository.aggregation(table, aggregation);
         MongoDataResponse response = new MongoDataResponse(results);
         if(queryRequest.count) {
             Long count = dataRepository.getTotalCount(table);
             response.setCount(count);
         }
         return response;
-
     }
     
-    public StreamingResponseBody downloadData(String table) {
+    public StreamingResponseBody downloadData(String entity) {
+        String table = entityDetailsProvider.getTable(entity);
         Long totalRecords = dataRepository.getTotalCount(table);
         return response -> {
             Long remainingRecords = totalRecords;
@@ -53,7 +64,7 @@ public class DataService {
             while(remainingRecords > 0) {
                 Long skip = (long) page * DEFAULT_PAGE_SIZE;
                 Integer limit = Math.min(remainingRecords.intValue(), DEFAULT_PAGE_SIZE);
-                Query query = mongoQueryBuilder.buildQuery(skip, limit);
+                Query query = mongoQueryBuilder.build(skip, limit);
                 List<Document> documents = dataRepository.query(table, query);
                 if(page == 0) {
                     String header = getHeaderFromDocument(documents.get(0));

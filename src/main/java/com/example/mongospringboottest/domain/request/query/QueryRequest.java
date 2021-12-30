@@ -7,27 +7,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class QueryRequest {
 
+    @JsonProperty(required = true)
+    public String entity;
     @JsonProperty(value = "$columns")
     public List<String> columns = Collections.emptyList();
     @JsonProperty(value = "$paging")
-    public Paging paging;
+    public PagingRequest paging = new PagingRequest();
     @JsonProperty(value = "$sorting")
-    public List<Sort> sorting = Collections.emptyList();
+    public List<SortRequest> sorting = Collections.emptyList();
     @JsonProperty(value = "$count")
-    public Boolean count = false;
-
-    public QueryRequest() {
-        this.paging = new Paging();
-    }
-
-    public QueryRequest(Paging paging) {
-        this.paging = paging;
-    }
-
-    public QueryRequest(Paging paging, List<Sort> sorting, Boolean count) {
-        this.paging = paging;
-        this.sorting = sorting;
-        this.count = count;
-    }
+    public Boolean count = false;    
 
 }

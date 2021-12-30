@@ -1,7 +1,6 @@
 package com.example.mongospringboottest.util;
 
-import com.example.mongospringboottest.domain.request.query.Paging;
-import com.example.mongospringboottest.domain.request.query.QueryRequest;
+import com.example.mongospringboottest.domain.request.query.*;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;
@@ -11,11 +10,11 @@ import org.springframework.stereotype.Component;
 public class MongoQueryBuilder implements QueryBuilder<Query> {
 
     @Override
-    public Query buildQuery(QueryRequest queryRequest) {
+    public Query build(QueryRequest queryRequest) {
         Query query = new Query();
         query.fields().exclude("_id");
 
-        Paging paging = queryRequest.paging;
+        PagingRequest paging = queryRequest.paging;
         Long skip = (long) (paging.pageNumber * paging.pageSize);
         Integer limit = paging.pageSize;
 
@@ -33,11 +32,11 @@ public class MongoQueryBuilder implements QueryBuilder<Query> {
         return query;
     }
 
-    public Query buildQuery(Long skip, Integer limit) {
+    public Query build(Long skip, Integer limit) {
         Query query = new Query();
         query.fields().exclude("_id");
         query.skip(skip).limit(limit);
         return query;
     }
-    
+
 }

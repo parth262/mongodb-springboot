@@ -27,20 +27,19 @@ public class DataController {
     
     @GetMapping("/query")
     public ResponseEntity<MongoDataResponse> queryData (
-        @RequestParam String table,
+        @RequestParam String entity,
         @RequestParam Long skip,
         @RequestParam Integer limit
     ) {
-        MongoDataResponse response = dataService.query(table, skip, limit);
+        MongoDataResponse response = dataService.query(entity, skip, limit);
         return ResponseEntity.ok().body(response);
     }
     
     @PostMapping("/query")
     public ResponseEntity<MongoDataResponse> queryData (
-        @RequestParam String table,
-        @RequestBody QueryRequest query
+        @RequestBody QueryRequest queryRequest
     ) {
-        MongoDataResponse response = dataService.query(table, query);
+        MongoDataResponse response = dataService.query(queryRequest);
         return ResponseEntity.ok().body(response);
     }
 

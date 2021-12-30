@@ -1,0 +1,18 @@
+{
+    "account": {
+        "table": "accounts",
+        "idColumn": "account_id",
+        "idType": "integer"
+    },
+    "customer": {
+        "table": "customers",
+        "idColumn": "username",
+        "idType": "string",
+        "columnEntityMap": {
+            "accounts": "account"
+        }
+    },
+    "flight": {
+        "table": "flights"
+    }
+}

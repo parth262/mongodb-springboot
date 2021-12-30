@@ -2,7 +2,7 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://mongouser:Sheba1997@cluster0.qd47m.mongodb.net/
-      database: sample_airbnb
+      database: sample_analytics
 
 server:
   port: 9090
