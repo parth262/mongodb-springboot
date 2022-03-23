@@ -1,16 +1,18 @@
 package com.example.mongospringboottest.dataModel;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
 public class EntityDetails {
+    
+    private String database;
     private String table;
     private String idColumn;
-    private String idType;
-    private Map<String, String> columnEntityMap = Collections.emptyMap();
+    private List<String> encryptedColumns = Collections.emptyList();
+    private List<ColumnEntityMapping> columnEntityMappings = Collections.emptyList();
 
     public String getTable() {
         return table;
@@ -24,16 +26,23 @@ public class EntityDetails {
     public void setIdColumn(String idColumn) {
         this.idColumn = idColumn;
     }
-    public String getIdType() {
-        return idType;
+    public String getDatabase() {
+        return database;
     }
-    public void setIdType(String idType) {
-        this.idType = idType;
+    public void setDatabase(String database) {
+        this.database = database;
     }
-    public Map<String, String> getColumnEntityMap() {
-        return columnEntityMap;
+    public List<String> getEncryptedColumns() {
+        return encryptedColumns;
     }
-    public void setColumnEntityMap(Map<String, String> columnEntityMap) {
-        this.columnEntityMap = columnEntityMap;
+    public void setEncryptedColumns(List<String> encryptedColumns) {
+        this.encryptedColumns = encryptedColumns;
     }
+    public List<ColumnEntityMapping> getColumnEntityMappings() {
+        return columnEntityMappings;
+    }
+    public void setColumnEntityMappings(List<ColumnEntityMapping> columnEntityMappings) {
+        this.columnEntityMappings = columnEntityMappings;
+    }
+    
 }
