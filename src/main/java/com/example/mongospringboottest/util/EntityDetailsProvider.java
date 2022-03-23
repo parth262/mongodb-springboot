@@ -7,9 +7,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import com.example.mongospringboottest.domain.EntityDetails;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ public class EntityDetailsProvider {
     private Map<String, EntityDetails> entityMapping;
 
     @PostConstruct
-    public void init() throws StreamReadException, DatabindException, IOException {
+    public void init() throws IOException {
         File file = ResourceUtils.getFile("classpath:entityMapping.json");
         this.entityMapping = objectMapper.readValue(file, new TypeReference<Map<String, EntityDetails>>(){});
     }

@@ -17,3 +17,10 @@ app:
   download:
     records:
       default-per-request: 5000
+
+springdoc:
+  paths-to-exclude: /v3/api-docs
+  swagger-ui:
+    urls:
+      - url: http://localhost:9090/api-docs
+        name: Swagger Doc

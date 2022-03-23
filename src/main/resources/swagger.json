@@ -1,0 +1,165 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "PAMB Dev CCM endpoints - Databricks",
+    "title": "Pru Demo POC Node APP - PAMB Devt",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9090/api"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "address": {
+        "properties": {
+          "line1": {
+            "description": "line1 client's address line1",
+            "type": "string"
+          },
+          "line2": {
+            "description": "line2 client's address line2",
+            "type": "string"
+          },
+          "line3": {
+            "description": "line3 client's address line3",
+            "type": "string"
+          },
+          "city": {
+            "description": "city client's city address",
+            "type": "string"
+          },
+          "state": {
+            "description": "state client's state address",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "customer": {
+        "properties": {
+          "firstName": {
+            "description": "first name of customer",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "last name of customer",
+            "type": "string"
+          },
+          "email": {
+            "description": "email of customer",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "paths": {
+    "/address/{id}": {
+      "get": {
+        "description": "get address",
+        "parameters": [
+          {
+            "description": "option id of the address record",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "standard result for address",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "items": {
+                        "$ref": "#/components/schemas/address"
+                      },
+                      "type": "array"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "result"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "address"
+        ],
+        "x-swagger-router-controller": "BaseController"
+      }
+    },
+    "/customer/{id}": {
+      "get": {
+        "description": "get customer",
+        "parameters": [
+          {
+            "description": "option id of the customer record",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "standard result for customer",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "items": {
+                        "$ref": "#/components/schemas/customer"
+                      },
+                      "type": "array"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "result"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "address"
+        ],
+        "x-swagger-router-controller": "BaseController"
+      }
+    }
+  }
+}

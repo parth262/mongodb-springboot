@@ -18,9 +18,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'com.azure:azure-security-keyvault-secrets:4.3.5'
 	implementation 'com.azure:azure-identity:1.4.2'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.4'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
 	useJUnitPlatform()
 }
+	

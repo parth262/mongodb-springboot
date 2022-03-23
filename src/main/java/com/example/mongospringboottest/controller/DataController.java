@@ -6,7 +6,7 @@ import javax.validation.Valid;
 
 import com.example.mongospringboottest.domain.request.query.QueryRequest;
 import com.example.mongospringboottest.domain.response.ErrorResponse;
-import com.example.mongospringboottest.domain.response.MongoDataResponse;
+import com.example.mongospringboottest.domain.response.DataResponse;
 import com.example.mongospringboottest.service.DataService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +34,20 @@ public class DataController {
     private DataService dataService;
     
     @GetMapping("/query")
-    public ResponseEntity<MongoDataResponse> queryData (
+    public ResponseEntity<DataResponse> queryData (
         @RequestParam(required = true) String entity,
         @RequestParam Long skip,
         @RequestParam Integer limit
     ) {
-        MongoDataResponse response = dataService.query(entity, skip, limit);
+        DataResponse response = dataService.query(entity, skip, limit);
         return ResponseEntity.ok().body(response);
     }
     
     @PostMapping("/query")
-    public ResponseEntity<MongoDataResponse> queryData (
+    public ResponseEntity<DataResponse> queryData (
         @Valid @RequestBody QueryRequest queryRequest
     ) {
-        MongoDataResponse response = dataService.query(queryRequest);
+        DataResponse response = dataService.query(queryRequest);
         return ResponseEntity.ok().body(response);
     }
 

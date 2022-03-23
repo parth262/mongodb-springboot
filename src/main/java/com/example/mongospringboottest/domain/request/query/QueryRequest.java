@@ -3,6 +3,7 @@ package com.example.mongospringboottest.domain.request.query;
 import java.util.Collections;
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -18,10 +19,11 @@ public class QueryRequest {
 
     @NotNull(message = "$paging is required")
     @JsonProperty(value = "$paging")
+    @Valid
     public PagingRequest paging;
 
     @JsonProperty(value = "$sorting")
-    public List<SortRequest> sorting = Collections.emptyList();
+    public List<@Valid SortRequest> sorting = Collections.emptyList();
 
     @JsonProperty(value = "$count")
     public Boolean count = false;    

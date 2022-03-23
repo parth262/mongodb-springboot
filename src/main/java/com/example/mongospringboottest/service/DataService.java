@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.mongospringboottest.domain.request.query.QueryRequest;
-import com.example.mongospringboottest.domain.response.MongoDataResponse;
+import com.example.mongospringboottest.domain.response.DataResponse;
 import com.example.mongospringboottest.repository.DataRepository;
 import com.example.mongospringboottest.util.EntityDetailsProvider;
 import com.example.mongospringboottest.util.MongoAggregationBuilder;
@@ -36,18 +36,18 @@ public class DataService {
     @Autowired
     private EntityDetailsProvider entityDetailsProvider;
 
-    public MongoDataResponse query(String entity, Long skip, Integer limit) {
+    public DataResponse query(String entity, Long skip, Integer limit) {
         String table = entityDetailsProvider.getTable(entity);
         Query query = mongoQueryBuilder.build(skip, limit);
         List<Document> results = dataRepository.query(table, query);
-        return new MongoDataResponse(results);
+        return new DataResponse(results);
     }
 
-    public MongoDataResponse query(QueryRequest queryRequest) {
+    public DataResponse query(QueryRequest queryRequest) {
         String table = entityDetailsProvider.getTable(queryRequest.entity);
         Aggregation aggregation = mongoAggregationBuilder.build(queryRequest);
         List<Document> results = dataRepository.aggregation(table, aggregation);
-        MongoDataResponse response = new MongoDataResponse(results);
+        DataResponse response = new DataResponse(results);
         if(queryRequest.count) {
             Long count = dataRepository.getTotalCount(table);
             response.setCount(count);

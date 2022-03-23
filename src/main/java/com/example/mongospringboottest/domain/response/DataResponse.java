@@ -8,13 +8,23 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.bson.Document;
 
 @JsonInclude(Include.NON_NULL)
-public class MongoDataResponse extends CollectionResponse<Document> {
+public class DataResponse {
     private Long count;
 
-    public MongoDataResponse() {}
+    private List<Document> results;
 
-    public MongoDataResponse(List<Document> results) {
-        super(results);
+    public DataResponse() {}
+
+    public DataResponse(List<Document> results) {
+        this.results = results;
+    }
+
+    public List<Document> getResults() {
+        return results;
+    }
+
+    public void setResults(List<Document> results) {
+        this.results = results;
     }
 
     public Long getCount() {
