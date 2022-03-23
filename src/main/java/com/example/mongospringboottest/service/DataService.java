@@ -3,10 +3,14 @@ package com.example.mongospringboottest.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.mongospringboottest.dataModel.ColumnEntityMapping;
+import com.example.mongospringboottest.dataModel.EntityDetails;
 import com.example.mongospringboottest.dataModel.request.query.QueryRequest;
+import com.example.mongospringboottest.dataModel.request.query.filters.ComparisonFilter;
+import com.example.mongospringboottest.dataModel.request.query.filters.ComparisonOperator;
 import com.example.mongospringboottest.dataModel.response.DataResponse;
 import com.example.mongospringboottest.repository.DataRepository;
-import com.example.mongospringboottest.util.EntityDetailsProvider;
+import com.example.mongospringboottest.util.EntityDetailsRepository;
 import com.example.mongospringboottest.util.MongoAggregationBuilder;
 import com.example.mongospringboottest.util.MongoQueryBuilder;
 
@@ -31,32 +35,43 @@ public class DataService {
     private MongoQueryBuilder mongoQueryBuilder;
 
     @Autowired
-    private MongoAggregationBuilder mongoAggregationBuilder;
+    private EntityDetailsRepository entityDetailsRepository;
 
-    @Autowired
-    private EntityDetailsProvider entityDetailsProvider;
-
-    public DataResponse query(String entity, Long skip, Integer limit) {
-        String table = entityDetailsProvider.getTable(entity);
-        Query query = mongoQueryBuilder.build(skip, limit);
-        List<Document> results = dataRepository.query(table, query);
-        return new DataResponse(results);
+    public Document getEntityById(String entity, String id) {
+        EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
+        String collection = entityDetails.getTable();
+        String idColumn = entityDetails.getIdColumn();
+        QueryRequest queryRequest = buildQueryRequestToGetEntityById(idColumn, id);
+        Aggregation aggregation = buildAggregation(queryRequest, entityDetails);
+        List<Document> documents = dataRepository.aggregation(collection, aggregation);
+        if(documents.isEmpty()) {
+            return new Document();
+        }
+        return documents.get(0);
     }
 
-    public DataResponse query(QueryRequest queryRequest) {
-        String table = entityDetailsProvider.getTable(queryRequest.entity);
-        Aggregation aggregation = mongoAggregationBuilder.build(queryRequest);
-        List<Document> results = dataRepository.aggregation(table, aggregation);
+    public QueryRequest buildQueryRequestToGetEntityById(String idColumn, String id) {
+        QueryRequest queryRequest = new QueryRequest();
+        ComparisonFilter comparisonFilter = new ComparisonFilter(idColumn, ComparisonOperator.EQ, id);
+        queryRequest.setFilterRequest(comparisonFilter);
+        return queryRequest;
+    }
+
+    public DataResponse search(String entity, QueryRequest queryRequest) {
+        EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
+        String collection = entityDetails.getTable();
+        Aggregation aggregation = buildAggregation(queryRequest, entityDetails);
+        List<Document> results = dataRepository.aggregation(collection, aggregation);
         DataResponse response = new DataResponse(results);
-        if(queryRequest.count) {
-            Long count = dataRepository.getTotalCount(table);
+        if(queryRequest.getCount()) {
+            Long count = dataRepository.getTotalCount(collection);
             response.setCount(count);
         }
         return response;
     }
     
     public StreamingResponseBody downloadData(String entity) {
-        String table = entityDetailsProvider.getTable(entity);
+        String table = entityDetailsRepository.getTable(entity);
         Long totalRecords = dataRepository.getTotalCount(table);
         return response -> {
             Long remainingRecords = totalRecords;
@@ -93,5 +108,32 @@ public class DataService {
             .stream()
             .collect(Collectors.joining(","));
     }
-    
+
+    private Aggregation buildAggregation(QueryRequest queryRequest, EntityDetails entityDetails) {
+        List<ColumnEntityMapping> filteredColumnEntityMappings = filterColumnEntityMappings(
+            entityDetails.getColumnEntityMappings(), 
+            queryRequest.getColumns()
+        );
+
+        return new MongoAggregationBuilder(entityDetailsRepository)
+            .setColumns(queryRequest.getColumns())
+            .setColumnEntityMappings(filteredColumnEntityMappings)
+            .setFilter(queryRequest.getFilterRequest())
+            .setSorts(queryRequest.getSortRequests())
+            .setPagination(queryRequest.getPagingRequest())
+            .build();
+    }
+
+    private List<ColumnEntityMapping> filterColumnEntityMappings(
+        List<ColumnEntityMapping> columnEntityMappings,
+        List<String> requestedColumns
+    ) {
+        if(requestedColumns.isEmpty()) {
+            return columnEntityMappings;
+        }
+
+        return columnEntityMappings.stream()
+            .filter(columnEntityMapping -> requestedColumns.contains(columnEntityMapping.getNewField()))
+            .collect(Collectors.toList());
+    }
 }

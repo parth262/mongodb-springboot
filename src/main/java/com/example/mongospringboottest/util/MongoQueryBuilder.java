@@ -7,26 +7,25 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MongoQueryBuilder implements QueryBuilder<Query> {
+public class MongoQueryBuilder {    
 
-    @Override
     public Query build(QueryRequest queryRequest) {
         Query query = new Query();
         query.fields().exclude("_id");
 
-        PagingRequest paging = queryRequest.paging;
-        Long skip = (long) (paging.pageNumber * paging.pageSize);
-        Integer limit = paging.pageSize;
+        PagingRequest paging = queryRequest.getPagingRequest();
+        Long skip = (long) (paging.getPage() * paging.getSize());
+        Integer limit = paging.getSize();
 
         query.skip(skip).limit(limit);
         
-        if(!queryRequest.columns.isEmpty()) {
-            query.fields().include(queryRequest.columns.toArray(new String[0]));
+        if(!queryRequest.getColumns().isEmpty()) {
+            query.fields().include(queryRequest.getColumns().toArray(new String[0]));
         }
         
-        queryRequest.sorting.forEach(sort -> {
-            Sort.Direction sortDirection = sort.isAscending ? Sort.Direction.ASC : Sort.Direction.DESC;
-            query.with(Sort.by(sortDirection, sort.field));
+        queryRequest.getSortRequests().forEach(sort -> {
+            Sort.Direction sortDirection = sort.getAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
+            query.with(Sort.by(sortDirection, sort.getField()));
         });
 
         return query;

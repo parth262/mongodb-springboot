@@ -1,83 +1,82 @@
 package com.example.mongospringboottest.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.mongospringboottest.dataModel.ColumnEntityMapping;
 import com.example.mongospringboottest.dataModel.EntityDetails;
 import com.example.mongospringboottest.dataModel.request.query.*;
+import com.example.mongospringboottest.dataModel.request.query.filters.FilterRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.*;
-import org.springframework.stereotype.Component;
 
-@Component
-public class MongoAggregationBuilder implements QueryBuilder<Aggregation> {
+public class MongoAggregationBuilder {
+    private List<AggregationOperation> operations;
+    private EntityDetailsRepository entityDetailsRepository;
 
-    @Autowired
-    private EntityDetailsProvider entityDetailsProvider;
-
-    @Override
-    public Aggregation build(QueryRequest queryRequest) {
-        List<LookupOperation> lookupOperations = buildLookupOperations(queryRequest.entity, queryRequest.columns);
-        ProjectionOperation projectionOperation = buildProjectionOperation(queryRequest.columns);
-        List<AggregationOperation> skipLimitOperations = mapPagingRequestToSkipAndLimitOperations(queryRequest.paging);
-        List<SortOperation> sortOperations = mapSortRequestsToSortOperations(queryRequest.sorting);
-
-        List<AggregationOperation> operations = new ArrayList<>();
-        operations.addAll(sortOperations);
-        operations.add(projectionOperation);
-        operations.addAll(skipLimitOperations);
-        operations.addAll(lookupOperations);
-
-        return Aggregation.newAggregation(operations);
+    public MongoAggregationBuilder(EntityDetailsRepository entityDetailsRepository) {
+        this.entityDetailsRepository = entityDetailsRepository;
+        this.operations = new ArrayList<>();
     }
 
-    private List<LookupOperation> buildLookupOperations(String entity, List<String> selectedColumns) {
-        EntityDetails entityDetails = entityDetailsProvider.getEntityDetails(entity);
-        Map<String, String> columnEntityMap = entityDetails.getColumnEntityMap();
-        return columnEntityMap.entrySet().stream()
-            .filter(entry -> selectedColumns.isEmpty() || selectedColumns.contains(entry.getKey()))
-            .map(entry -> {
-                EntityDetails nestedEntityDetail = entityDetailsProvider.getEntityDetails(entry.getValue());
-                String from = nestedEntityDetail.getTable();
-                String localField = entry.getKey();
-                String foreignField = nestedEntityDetail.getIdColumn();
-                String as = localField;
-                return Aggregation.lookup(from, localField, foreignField, as);
-            }).collect(Collectors.toList());
-    }
-
-    private ProjectionOperation buildProjectionOperation(List<String> columns) {
+    public MongoAggregationBuilder setColumns(List<String> columns) {
         ProjectionOperation projectionOperation = Aggregation.project().andExclude("_id");
         if(!columns.isEmpty()) {
-            projectionOperation = projectionOperation.andInclude(columns.toArray(new String[0]));
+            projectionOperation.andInclude(columns.toArray(new String[0]));
         }
-        return projectionOperation;
+        this.operations.add(projectionOperation);
+        return this;
     }
 
-    private List<AggregationOperation> mapPagingRequestToSkipAndLimitOperations(PagingRequest pagingRequest) {
-        Long skip = (long) (pagingRequest.pageNumber * pagingRequest.pageSize);
-        Integer limit = pagingRequest.pageSize;
-
-        SkipOperation skipOperation = Aggregation.skip(skip);
-        LimitOperation limitOperation = Aggregation.limit(limit);
-
-        return Arrays.asList(skipOperation, limitOperation);
+    public MongoAggregationBuilder setColumnEntityMappings(List<ColumnEntityMapping> columnEntityMappings) {
+        List<LookupOperation> lookupOperations = columnEntityMappings.stream()
+            .map(columnEntityMapping -> {
+                EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(columnEntityMapping.getEntity());
+                String from = entityDetails.getTable();
+                String localField = columnEntityMapping.getSourceField();
+                String foreignField = columnEntityMapping.getForeignField();
+                String newField = columnEntityMapping.getNewField();                
+                return Aggregation.lookup(from, localField, foreignField, newField);
+            }).collect(Collectors.toList());
+        this.operations.addAll(lookupOperations);
+        return this;
     }
 
-    private List<SortOperation> mapSortRequestsToSortOperations(List<SortRequest> sortRequests) {
-        return sortRequests.stream()
-        .map(this::mapSortRequestToSortOperation)
-        .collect(Collectors.toList());
+    public MongoAggregationBuilder setFilter(FilterRequest filterRequest) {
+        if(filterRequest != null) {
+            MatchOperation matchOperation = MongoFilterBuilder.build(filterRequest);
+            this.operations.add(matchOperation);
+        }
+        return this;
     }
 
-    private SortOperation mapSortRequestToSortOperation(SortRequest sortRequest) {
-        Sort.Direction sortDirection = sortRequest.isAscending ? Sort.Direction.ASC : Sort.Direction.DESC;
-        return Aggregation.sort(Sort.by(sortDirection, sortRequest.field));
+    public MongoAggregationBuilder setSorts(List<SortRequest> sortRequests) {
+        List<SortOperation> sortOperations = sortRequests.stream()
+            .map(sortRequest -> {
+                Sort.Direction sortDirection = sortRequest.getAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
+                return Aggregation.sort(Sort.by(sortDirection, sortRequest.getField()));
+            }).collect(Collectors.toList());
+        this.operations.addAll(sortOperations);
+        return this;
     }
+
+    public MongoAggregationBuilder setPagination(PagingRequest pagingRequest) {
+        if(pagingRequest != null) {
+            Long skip = (long) (pagingRequest.getPage() * pagingRequest.getSize());
+            SkipOperation skipOperation = Aggregation.skip(skip);
+            this.operations.add(skipOperation);
+
+            Integer limit = pagingRequest.getSize();
+            LimitOperation limitOperation = Aggregation.limit(limit);
+            this.operations.add(limitOperation);
+        }
+        return this;
+    }
+
+    public Aggregation build() {
+        return Aggregation.newAggregation(this.operations);
+    }    
     
 }

@@ -9,22 +9,20 @@ import com.example.mongospringboottest.dataModel.response.DataResponse;
 import com.example.mongospringboottest.dataModel.response.ErrorResponse;
 import com.example.mongospringboottest.service.DataService;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/api")
@@ -33,24 +31,25 @@ public class DataController {
     @Autowired
     private DataService dataService;
     
-    @GetMapping("/query")
-    public ResponseEntity<DataResponse> queryData (
-        @RequestParam(required = true) String entity,
-        @RequestParam Long skip,
-        @RequestParam Integer limit
+    @GetMapping("/{entity}/{id}")
+    public ResponseEntity<Document> getEntityById (
+        @PathVariable(required = true) String entity,
+        @PathVariable(required = true) String id
     ) {
-        DataResponse response = dataService.query(entity, skip, limit);
+        Document response = dataService.getEntityById(entity, id);
         return ResponseEntity.ok().body(response);
     }
     
-    @PostMapping("/query")
+    @PostMapping("/{entity}/search")
     public ResponseEntity<DataResponse> queryData (
+        @PathVariable(required = true) String entity,
         @Valid @RequestBody QueryRequest queryRequest
     ) {
-        DataResponse response = dataService.query(queryRequest);
+        DataResponse response = dataService.search(entity, queryRequest);
         return ResponseEntity.ok().body(response);
     }
 
+    /*
     @GetMapping("/download")
     public ResponseEntity<StreamingResponseBody> downloadAllDocuments(
         @RequestParam String table
@@ -61,6 +60,7 @@ public class DataController {
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .body(stream);
     }
+    */
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class})

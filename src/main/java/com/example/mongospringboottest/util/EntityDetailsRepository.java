@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 @Component
-public class EntityDetailsProvider {
+public class EntityDetailsRepository {
 
     @Autowired
     private ObjectMapper objectMapper;
