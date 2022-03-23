@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.domain.response;
+package com.example.mongospringboottest.dataModel.response;
 
 public class ErrorResponse {
     private String errorMessage;

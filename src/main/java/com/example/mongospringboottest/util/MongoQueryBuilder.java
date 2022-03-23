@@ -1,6 +1,6 @@
 package com.example.mongospringboottest.util;
 
-import com.example.mongospringboottest.domain.request.query.*;
+import com.example.mongospringboottest.dataModel.request.query.*;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Query;

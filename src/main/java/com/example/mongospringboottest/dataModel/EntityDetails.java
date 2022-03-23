@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.domain;
+package com.example.mongospringboottest.dataModel;
 
 import java.util.Collections;
 import java.util.Map;

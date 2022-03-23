@@ -2,7 +2,7 @@ package com.example.mongospringboottest.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.example.mongospringboottest.config.SwaggerJson;
+import com.example.mongospringboottest.dataModel.SwaggerJson;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

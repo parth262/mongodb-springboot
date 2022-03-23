@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import com.example.mongospringboottest.domain.EntityDetails;
+import com.example.mongospringboottest.dataModel.EntityDetails;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

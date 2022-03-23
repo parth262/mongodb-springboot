@@ -4,9 +4,9 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import com.example.mongospringboottest.domain.request.query.QueryRequest;
-import com.example.mongospringboottest.domain.response.ErrorResponse;
-import com.example.mongospringboottest.domain.response.DataResponse;
+import com.example.mongospringboottest.dataModel.request.query.QueryRequest;
+import com.example.mongospringboottest.dataModel.response.DataResponse;
+import com.example.mongospringboottest.dataModel.response.ErrorResponse;
 import com.example.mongospringboottest.service.DataService;
 
 import org.springframework.beans.factory.annotation.Autowired;

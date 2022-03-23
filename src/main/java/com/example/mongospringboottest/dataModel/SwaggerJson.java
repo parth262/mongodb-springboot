@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.config;
+package com.example.mongospringboottest.dataModel;
 
 public class SwaggerJson {
 

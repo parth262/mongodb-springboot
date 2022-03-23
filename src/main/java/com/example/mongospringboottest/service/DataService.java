@@ -3,8 +3,8 @@ package com.example.mongospringboottest.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.mongospringboottest.domain.request.query.QueryRequest;
-import com.example.mongospringboottest.domain.response.DataResponse;
+import com.example.mongospringboottest.dataModel.request.query.QueryRequest;
+import com.example.mongospringboottest.dataModel.response.DataResponse;
 import com.example.mongospringboottest.repository.DataRepository;
 import com.example.mongospringboottest.util.EntityDetailsProvider;
 import com.example.mongospringboottest.util.MongoAggregationBuilder;

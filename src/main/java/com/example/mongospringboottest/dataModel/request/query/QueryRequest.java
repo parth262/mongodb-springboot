@@ -1,4 +1,4 @@
-package com.example.mongospringboottest.domain.request.query;
+package com.example.mongospringboottest.dataModel.request.query;
 
 import java.util.Collections;
 import java.util.List;
