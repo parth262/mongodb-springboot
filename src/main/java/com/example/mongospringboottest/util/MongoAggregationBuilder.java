@@ -25,7 +25,7 @@ public class MongoAggregationBuilder {
     public MongoAggregationBuilder setColumns(List<String> columns) {
         ProjectionOperation projectionOperation = Aggregation.project().andExclude("_id");
         if(!columns.isEmpty()) {
-            projectionOperation.andInclude(columns.toArray(new String[0]));
+            projectionOperation = projectionOperation.andInclude(columns.toArray(new String[0]));
         }
         this.operations.add(projectionOperation);
         return this;

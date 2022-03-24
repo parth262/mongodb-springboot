@@ -1,8 +1,9 @@
 package com.example.mongospringboottest.util;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.DateTimeParseException;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -42,12 +43,12 @@ public class ConversionUtil {
         return Double.parseDouble(value);
     }
     
-    public static Date convertToDate(String value) {     
-        return Date.from(
-            Instant.from(
-                DATE_TIME_FORMATTER.parse(value)
-            )
-        );
+    public static Object convertToDate(String value) {     
+        try {
+            return LocalDateTime.parse(value, DATE_TIME_FORMATTER);
+        } catch (DateTimeParseException ex) {
+            return LocalDate.parse(value, DATE_TIME_FORMATTER);
+        }
     }
 
 }
