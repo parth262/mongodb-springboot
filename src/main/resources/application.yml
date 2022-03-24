@@ -1,26 +1,28 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://mongouser:Sheba1997@cluster0.qd47m.mongodb.net/
-      database: sample_analytics
+      uri: ${MONGO_DB_URL}
+      database: ${MONGO_DB_DATABASE}
 
 server:
   port: 9090
 
 app:
-  cipher:
-    algorithm: AES/CBC/PKCS5Padding
-    key: c2FtcGxla2V5
-    iv-length: 10
-  keyVault:
-    uri: https://springtest.vault.azure.net/
+  # cipher:
+  #   algorithm: AES/CBC/PKCS5Padding
+  #   key: c2FtcGxla2V5
+  #   iv-length: 10
+  # keyVault:
+  #   uri: https://springtest.vault.azure.net/
   download:
     records:
       default-per-request: 5000
 
 springdoc:
-  paths-to-exclude: /v3/api-docs
+  # paths-to-exclude: /v3/api-docs
   swagger-ui:
     urls:
-      - url: http://localhost:9090/api-docs
+      - url: /api-docs
         name: Swagger Doc
+      - url: /v3/api-docs
+        name: API

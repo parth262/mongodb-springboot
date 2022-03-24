@@ -1,18 +1,20 @@
 {
     "account": {
+        "database": "sample_analytics",
         "table": "accounts",
-        "idColumn": "account_id",
-        "idType": "integer"
+        "idColumn": "account_id"
     },
     "customer": {
+        "database": "sample_analytics",
         "table": "customers",
         "idColumn": "username",
-        "idType": "string",
-        "columnEntityMap": {
-            "accounts": "account"
-        }
-    },
-    "flight": {
-        "table": "flights"
+        "columnEntityMappings": [
+            {
+                "sourceField": "accounts",
+                "entity": "account",
+                "foreignField": "account_id",
+                "newField": "accounts"
+            }
+        ]
     }
 }

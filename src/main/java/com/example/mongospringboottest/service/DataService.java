@@ -1,6 +1,7 @@
 package com.example.mongospringboottest.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.mongospringboottest.dataModel.ColumnEntityMapping;
@@ -41,8 +42,9 @@ public class DataService {
         EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
         String collection = entityDetails.getTable();
         String idColumn = entityDetails.getIdColumn();
+        Map<String, String> schema = dataRepository.getSchema(collection);
         QueryRequest queryRequest = buildQueryRequestToGetEntityById(idColumn, id);
-        Aggregation aggregation = buildAggregation(queryRequest, entityDetails);
+        Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
         List<Document> documents = dataRepository.aggregation(collection, aggregation);
         if(documents.isEmpty()) {
             return new Document();
@@ -60,7 +62,8 @@ public class DataService {
     public DataResponse search(String entity, QueryRequest queryRequest) {
         EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
         String collection = entityDetails.getTable();
-        Aggregation aggregation = buildAggregation(queryRequest, entityDetails);
+        Map<String, String> schema = dataRepository.getSchema(collection);
+        Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
         List<Document> results = dataRepository.aggregation(collection, aggregation);
         DataResponse response = new DataResponse(results);
         if(queryRequest.getCount()) {
@@ -109,7 +112,11 @@ public class DataService {
             .collect(Collectors.joining(","));
     }
 
-    private Aggregation buildAggregation(QueryRequest queryRequest, EntityDetails entityDetails) {
+    private Aggregation buildAggregation(
+        QueryRequest queryRequest, 
+        EntityDetails entityDetails,
+        Map<String, String> schema
+    ) {
         List<ColumnEntityMapping> filteredColumnEntityMappings = filterColumnEntityMappings(
             entityDetails.getColumnEntityMappings(), 
             queryRequest.getColumns()
@@ -118,7 +125,7 @@ public class DataService {
         return new MongoAggregationBuilder(entityDetailsRepository)
             .setColumns(queryRequest.getColumns())
             .setColumnEntityMappings(filteredColumnEntityMappings)
-            .setFilter(queryRequest.getFilterRequest())
+            .setFilter(queryRequest.getFilterRequest(), schema)
             .setSorts(queryRequest.getSortRequests())
             .setPagination(queryRequest.getPagingRequest())
             .build();

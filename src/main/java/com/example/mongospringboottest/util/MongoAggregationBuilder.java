@@ -2,6 +2,7 @@ package com.example.mongospringboottest.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.mongospringboottest.dataModel.ColumnEntityMapping;
@@ -44,9 +45,9 @@ public class MongoAggregationBuilder {
         return this;
     }
 
-    public MongoAggregationBuilder setFilter(FilterRequest filterRequest) {
+    public MongoAggregationBuilder setFilter(FilterRequest filterRequest, Map<String, String> schema) {
         if(filterRequest != null) {
-            MatchOperation matchOperation = MongoFilterBuilder.build(filterRequest);
+            MatchOperation matchOperation = MongoFilterBuilder.build(filterRequest, schema);
             this.operations.add(matchOperation);
         }
         return this;

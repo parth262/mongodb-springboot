@@ -34,7 +34,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 )
 public class FilterRequest {
     protected FilterType type;
-    private Boolean negate;
+    private Boolean negate = false;
 
     public FilterRequest() {
     }
