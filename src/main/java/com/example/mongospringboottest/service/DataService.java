@@ -13,15 +13,15 @@ import com.example.mongospringboottest.dataModel.response.DataResponse;
 import com.example.mongospringboottest.repository.DataRepository;
 import com.example.mongospringboottest.util.EntityDetailsRepository;
 import com.example.mongospringboottest.util.MongoAggregationBuilder;
-import com.example.mongospringboottest.util.MongoQueryBuilder;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DataService {
@@ -33,23 +33,21 @@ public class DataService {
     private DataRepository dataRepository;
 
     @Autowired
-    private MongoQueryBuilder mongoQueryBuilder;
-
-    @Autowired
     private EntityDetailsRepository entityDetailsRepository;
 
-    public Document getEntityById(String entity, String id) {
+    public Mono<Document> getEntityById(String entity, String id) {
         EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
         String collection = entityDetails.getTable();
         String idColumn = entityDetails.getIdColumn();
-        Map<String, String> schema = dataRepository.getSchema(collection);
         QueryRequest queryRequest = buildQueryRequestToGetEntityById(idColumn, id);
-        Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
-        List<Document> documents = dataRepository.aggregation(collection, aggregation);
-        if(documents.isEmpty()) {
-            return new Document();
-        }
-        return documents.get(0);
+
+        Mono<Map<String, String>> schemaMono = dataRepository.getSchema(collection);
+        
+        return schemaMono.flatMap(schema -> {
+            Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
+            Flux<Document> documents = dataRepository.aggregation(collection, aggregation);
+            return documents.next();
+        });
     }
 
     public QueryRequest buildQueryRequestToGetEntityById(String idColumn, String id) {
@@ -59,20 +57,31 @@ public class DataService {
         return queryRequest;
     }
 
-    public DataResponse search(String entity, QueryRequest queryRequest) {
+    public Mono<DataResponse> search(String entity, QueryRequest queryRequest) {
         EntityDetails entityDetails = entityDetailsRepository.getEntityDetails(entity);
-        String collection = entityDetails.getTable();
-        Map<String, String> schema = dataRepository.getSchema(collection);
-        Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
-        List<Document> results = dataRepository.aggregation(collection, aggregation);
-        DataResponse response = new DataResponse(results);
-        if(queryRequest.getCount()) {
-            Long count = dataRepository.getTotalCount(collection);
-            response.setCount(count);
+        String collectionName = entityDetails.getTable();
+        Mono<Map<String, String>> schemaMono = dataRepository.getSchema(collectionName);
+        
+        return schemaMono.flatMap(schema -> {
+            Aggregation aggregation = buildAggregation(queryRequest, entityDetails, schema);
+            Mono<List<Document>> resultsMono = dataRepository.aggregation(collectionName, aggregation).collectList();
+            Mono<Long> countMono = getCount(collectionName, queryRequest.getCount());
+            return countMono.zipWith(resultsMono, (count, results) -> {
+                DataResponse response = new DataResponse(results);
+                response.setCount(count);
+                return response;
+            }).switchIfEmpty(resultsMono.map(DataResponse::new));
+        });
+    }
+
+    private Mono<Long> getCount(String collectionName, Boolean fetchCount) {
+        if(fetchCount) {
+            return dataRepository.getTotalCount(collectionName);
         }
-        return response;
+        return Mono.empty();
     }
     
+    /*
     public StreamingResponseBody downloadData(String entity) {
         String table = entityDetailsRepository.getTable(entity);
         Long totalRecords = dataRepository.getTotalCount(table);
@@ -111,6 +120,7 @@ public class DataService {
             .stream()
             .collect(Collectors.joining(","));
     }
+    */
 
     private Aggregation buildAggregation(
         QueryRequest queryRequest, 

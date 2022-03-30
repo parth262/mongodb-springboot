@@ -12,7 +12,6 @@ import com.example.mongospringboottest.service.DataService;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/api")
 public class DataController {
@@ -32,21 +33,19 @@ public class DataController {
     private DataService dataService;
     
     @GetMapping("/{entity}/{id}")
-    public ResponseEntity<Document> getEntityById (
+    public Mono<Document> getEntityById (
         @PathVariable(required = true) String entity,
         @PathVariable(required = true) String id
     ) {
-        Document response = dataService.getEntityById(entity, id);
-        return ResponseEntity.ok().body(response);
+        return dataService.getEntityById(entity, id);
     }
     
     @PostMapping("/{entity}/search")
-    public ResponseEntity<DataResponse> queryData (
+    public Mono<DataResponse> queryData (
         @PathVariable(required = true) String entity,
         @Valid @RequestBody QueryRequest queryRequest
     ) {
-        DataResponse response = dataService.search(entity, queryRequest);
-        return ResponseEntity.ok().body(response);
+        return dataService.search(entity, queryRequest);
     }
 
     /*

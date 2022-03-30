@@ -4,8 +4,6 @@ public class SwaggerJson {
 
     private String json;
 
-    
-
     public SwaggerJson(String json) {
         this.json = json;
     }

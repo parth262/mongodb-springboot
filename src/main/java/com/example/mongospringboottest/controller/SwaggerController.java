@@ -1,7 +1,5 @@
 package com.example.mongospringboottest.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.example.mongospringboottest.dataModel.SwaggerJson;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +28,8 @@ public class SwaggerController {
     )
     @ResponseBody
     public ResponseEntity<String> getDocumentation(
-            @RequestParam(value = "group", required = false) String swaggerGroup,
-            HttpServletRequest servletRequest) {
-
+            @RequestParam(value = "group", required = false) String swaggerGroup
+    ) {
         return ResponseEntity.ok().body(this.swaggerJson.getJson());
     }
     
